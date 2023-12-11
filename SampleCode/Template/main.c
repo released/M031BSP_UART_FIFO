@@ -150,6 +150,17 @@ void delay_ms(uint16_t ms)
 	#endif
 }
 
+void SendChar_ToUART1(int ch)
+{
+    while(UART1->FIFOSTS & UART_FIFOSTS_TXFULL_Msk);
+
+    // if(ch == '\n')
+    // {
+    //     UART1->DAT = '\r';
+    //     while(UART1->FIFOSTS & UART_FIFOSTS_TXFULL_Msk);
+    // }
+    UART1->DAT = ch;
+}
 
 void FifoBufferInit(void)
 {
@@ -237,6 +248,9 @@ void FifoBufferReceiveDataPush(FIFO_tBuffer_T *InterfaceData) // input buffer
 void display_UART1_data(void)
 {
     uint8_t rcvChar = 0;
+    #if defined (USE_UART_TX)
+    uint8_t sendChar = 0;
+    #endif
 
     if ( !CheckFifoBufferEmpty(&UART_InputBuffer))
     {
@@ -244,6 +258,18 @@ void display_UART1_data(void)
         {
             FifoBufferReceiveDataPop(&rcvChar);
             printf("%c" ,rcvChar);
+            
+            #if defined (USE_UART_TX)
+            FifoBufferSendDataPush(&rcvChar);
+            if (!CheckFifoBufferEmpty(&UART_OutputBuffer))
+            {
+                do
+                {
+                    FifoBufferSendDataPop(&sendChar);
+                    SendChar_ToUART1(sendChar);
+                } while (!CheckFifoBufferEmpty(&UART_OutputBuffer));                
+            }
+            #endif
         } while (!CheckFifoBufferEmpty(&UART_InputBuffer));
     }
 

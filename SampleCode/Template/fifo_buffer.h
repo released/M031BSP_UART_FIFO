@@ -12,7 +12,7 @@ typedef unsigned char bool;
 typedef unsigned char BOOL;
 #endif
 
-#define  FIFO_QUQUE_SIZE                     (1024*4)
+#define  FIFO_QUQUE_SIZE                     (1024)
 
 // typedef uint32_t FIFO_tBuffer_T;
 typedef uint8_t FIFO_tBuffer_T;
